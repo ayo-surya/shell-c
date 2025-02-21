@@ -81,7 +81,7 @@ int main() {
     }
 
     else if(strcmp("type", cmd) == 0){
-      if(strcmp("echo", args) == 0 || strcmp("exit", args) == 0 || strcmp("type", args) == 0 || strncmp(args, "pwd", 3) == 0){
+      if(strcmp("echo", args) == 0 || strcmp("exit", args) == 0 || strcmp("type", args) == 0 || strcmp(args, "pwd") == 0 || strcmp(args, "cd") == 0){
         printf("%s is a shell builtin\n", args);
         continue;
       }
@@ -146,6 +146,15 @@ int main() {
         perror("getcwd() error");
         return 1;
       }
+    }
+    else if(strncmp("cd", input, 2) == 0){
+      if (chdir(args) == 0){
+        continue;
+      }
+      else{
+        printf("cd: %s: No such file or directory\n", args);
+      }
+      continue;
     }
     else{
       get_args(input);; // every other command shall print this statement
