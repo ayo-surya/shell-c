@@ -8,6 +8,7 @@
 
 
 
+
 void execute(int argc, char **argv){
   pid_t pid = fork();
   if (pid == 0)
@@ -80,7 +81,7 @@ int main() {
     }
 
     else if(strcmp("type", cmd) == 0){
-      if(strcmp("echo", args) == 0 || strcmp("exit", args) == 0 || strcmp("type", args) == 0){
+      if(strcmp("echo", args) == 0 || strcmp("exit", args) == 0 || strcmp("type", args) == 0 || strncmp(args, "pwd", 3) == 0){
         printf("%s is a shell builtin\n", args);
         continue;
       }
@@ -133,6 +134,18 @@ int main() {
         printf("%s: not found\n", args);
       }
       continue;
+    }
+    else if (strcmp("pwd", input)== 0)
+    {
+      char cwd[1024];
+      if(getcwd(cwd, sizeof(cwd)) != NULL)
+      {
+        printf("%s\n", cwd);
+      }
+      else{
+        perror("getcwd() error");
+        return 1;
+      }
     }
     else{
       get_args(input);; // every other command shall print this statement
