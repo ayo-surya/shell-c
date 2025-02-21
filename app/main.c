@@ -44,7 +44,13 @@ void get_args(char *line){
   execute(partition+1, tokens);
 }
   
-
+int changeIntoHomeDir(){
+  char *env_home = getenv("HOME");
+  if (chdir(env_home) == 0){
+    return 1;
+  }
+  return 0;
+}
 
 int main() {
 
@@ -148,7 +154,13 @@ int main() {
       }
     }
     else if(strncmp("cd", input, 2) == 0){
-      if (chdir(args) == 0){
+      if (strcmp(args, "~") == 0){
+        if (changeIntoHomeDir()){
+          continue;
+        }
+      }
+      
+      else if (chdir(args) == 0){
         continue;
       }
       else{
