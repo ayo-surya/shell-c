@@ -7,8 +7,6 @@
 #include <sys/wait.h>
 
 
-
-
 void execute(int argc, char **argv){
   pid_t pid = fork();
   if (pid == 0)
@@ -59,16 +57,12 @@ int main() {
   while (1) // continuously taking the input and excecuting it line after line
   {
     printf("$ "); // this is just for letting the user know that you have to enter some input
-    fflush(stdout);
+    fflush(stdout); 
 
     char input[100];
     fgets(input, 100, stdin);  // reads the input until it encounters "\n"
     input[strlen(input)-1] = '\0';  // clears the "\n" which is built-in in fgets function
 
-    
-    
-    char cmd[5];
-    strncpy(cmd, input, 4);
     char *args = NULL;
 
     for(int i = 0; i < strlen(input)+1; i++){ // loop for intializing the args pointer to the desired location
@@ -78,15 +72,15 @@ int main() {
       }
     }
  
-    if(!strcmp(cmd, "exit")){  // exiting with 0 when the "exit 0" input is given which will terminate the program                     
+    if(!strncmp(input, "exit", 4)){  // exiting with 0 when the "exit 0" input is given which will terminate the program                     
         exit(0);
     } 
 
-    else if(!strcmp(cmd, "echo")){  // if the input starts with "echo" then the string after shall be printed 
+    else if(!strncmp(input, "echo", 4)){  // if the input starts with "echo" then the string after shall be printed 
       printf("%s\n", args);
     }
 
-    else if(strcmp("type", cmd) == 0){
+    else if(strncmp("type", input, 4) == 0){
       if(strcmp("echo", args) == 0 || strcmp("exit", args) == 0 || strcmp("type", args) == 0 || strcmp(args, "pwd") == 0 || strcmp(args, "cd") == 0){
         printf("%s is a shell builtin\n", args);
         continue;
