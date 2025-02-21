@@ -1,10 +1,13 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
+#include <dirent.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 int main() {
-  // Flush after every printf
-  setbuf(stdout, NULL);
+
+  setbuf(stdout, NULL); // setting buffer to NULL to throw the output immediately
   
   while (1) // continuously taking the input and excecuting it line after line
   {
@@ -24,8 +27,7 @@ int main() {
         break;
       }
     }
-
-
+    
     if(!strcmp(cmd, "exit")){  // exiting with 0 when the "exit 0" input is given which will terminate the program                     
         exit(0);
     } 
@@ -37,8 +39,53 @@ int main() {
     else if(strcmp("type", cmd) == 0){
       if(strcmp("echo", args) == 0 || strcmp("exit", args) == 0 || strcmp("type", args) == 0){
         printf("%s is a shell builtin\n", args);
+        continue;
       }
-      else{
+    
+      char *env_path = getenv("PATH");
+      if (env_path == NULL) {
+        printf("PATH environment variable not found\n");
+        continue;
+      }
+      
+      char *PATH = malloc(strlen(env_path) + 1);  // +1 for null terminator
+      if (PATH == NULL) {
+        printf("Memory allocation failed\n");
+        continue;
+      }
+      
+      strcpy(PATH, env_path);
+      int found = 0;  // Flag to track if we found the command
+      
+      char *dirpath = strtok(PATH, ":");
+      
+      while (dirpath && !found) {
+        DIR *directory = opendir(dirpath);
+        
+        if (directory == NULL) {
+          dirpath = strtok(NULL, ":");
+          continue;
+        }
+    
+        struct dirent *entry;
+        
+        while((entry = readdir(directory)) != NULL) {
+          if (strcmp(entry->d_name, args) == 0) {
+            printf("%s is %s/%s\n", args, dirpath, entry->d_name);
+            found = 1;
+            break;
+          }
+        }
+        
+        closedir(directory);
+        if (!found) {
+          dirpath = strtok(NULL, ":");
+        }
+      }
+      
+      free(PATH);
+      
+      if (!found) {
         printf("%s: not found\n", args);
       }
       continue;
