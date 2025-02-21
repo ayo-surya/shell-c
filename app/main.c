@@ -4,6 +4,46 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <sys/wait.h>
+
+
+
+void execute(int argc, char **argv){
+  pid_t pid = fork();
+  if (pid == 0)
+  {
+    execvp(argv[0], argv);
+    printf("%s: command not found\n", argv[0]);
+    exit(1);
+  }
+  else if(pid < 0)
+  {
+    perror("fork");
+  }
+  else {
+    int status;
+    waitpid(pid, &status, 0);
+  }
+  
+}
+
+void get_args(char *line){
+  // printf("from the get_args function line is: %s\n", line);
+  char *tokens[10] = {0};
+  char *token = strtok(line, " ");
+  int partition = 0;
+
+  while (token != NULL)
+  {
+    tokens[partition] = token;
+    partition++;
+    token = strtok(NULL, " ");
+  }
+  tokens[partition] = NULL;
+  execute(partition+1, tokens);
+}
+  
+
 
 int main() {
 
@@ -12,22 +52,25 @@ int main() {
   while (1) // continuously taking the input and excecuting it line after line
   {
     printf("$ "); // this is just for letting the user know that you have to enter some input
+    fflush(stdout);
 
     char input[100];
     fgets(input, 100, stdin);  // reads the input until it encounters "\n"
     input[strlen(input)-1] = '\0';  // clears the "\n" which is built-in in fgets function
+
     
-    char *cmd = input;
+    
+    char cmd[5];
+    strncpy(cmd, input, 4);
     char *args = NULL;
 
-    for(int i = 0; i < strlen(input)+1; i++){
+    for(int i = 0; i < strlen(input)+1; i++){ // loop for intializing the args pointer to the desired location
       if(input[i] == ' '){
-        input[i] = '\0';
         args = &input[i+1];
         break;
       }
     }
-    
+ 
     if(!strcmp(cmd, "exit")){  // exiting with 0 when the "exit 0" input is given which will terminate the program                     
         exit(0);
     } 
@@ -86,12 +129,13 @@ int main() {
       free(PATH);
       
       if (!found) {
+        // printf("going into the get_args function: ");
         printf("%s: not found\n", args);
       }
       continue;
     }
     else{
-      printf("%s: command not found\n", input); // every other command shall print this statement
+      get_args(input);; // every other command shall print this statement
     }
   }
   
